@@ -234,6 +234,9 @@ body {
     left: 10%;
     height: 80%;
      scrollbar-width: none
+    & > {
+    opicty: 1;
+    }
 }
 
 .disabled {
