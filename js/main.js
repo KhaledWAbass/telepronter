@@ -58,11 +58,11 @@ DOM.saveBtn?.addEventListener("click", (e) => {
     saveScript(
       DOM.textarea.value,
       DOM.titleInput,
-      DOM.color.value,
-      DOM.font.value,
-      DOM.speedInput.value,
-      DOM.bacgroundColor.value,
-      DOM.bacColorOp.value,
+      DOM.color.value ? DOM.color.value : "white",
+      DOM.font.value ? DOM.font.value : 24,
+      DOM.speedInput.value ? DOM.speedInput.value : 0.5,
+      DOM.bacgroundColor.value ? DOM.bacgroundColor.value : "black",
+      DOM.bacColorOp.value ? DOM.bacColorOp.value : 1,
     );
     window.location = "../index.html";
   }
