@@ -33,7 +33,7 @@ getScripts();
 // Event listeners
 DOM.create?.addEventListener("click", (e) => {
   e.preventDefault();
-  window.location = "/html/wrieting.html";
+  window.location = "html/wrieting.html";
 });
 
 DOM.fontBtn?.addEventListener("click", () => {
