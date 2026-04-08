@@ -221,7 +221,7 @@ body .video {
   height: 80%;
   scrollbar-width: none;
 }
-
+.bac-script .script { opacity : 1}
 .disabled {
   opacity: 0.5;
   cursor: none;
