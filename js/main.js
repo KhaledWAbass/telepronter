@@ -134,11 +134,11 @@ function createCard(item) {
   });
 
   card.querySelector(".rec").addEventListener("click", () => {
-    window.location = `/html/record.html?id=${item.id}`;
+    window.location = `html/record.html?id=${item.id}`;
   });
 
   card.querySelector(".edit").addEventListener("click", () => {
-    window.location = `/html/wrieting.html?id=${item.id}`;
+    window.location = `html/wrieting.html?id=${item.id}`;
   });
 
   return card;
