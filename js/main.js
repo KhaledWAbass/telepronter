@@ -1,5 +1,268 @@
-const DOM={color:document.querySelector(".edit .color input"),font:document.querySelector(".edit .fonts input"),create:document.querySelector(".create"),cards:document.querySelector(".cards"),clear:document.querySelector(".edit button"),fontBtn:document.querySelector(".edit div.fonts div.sup1"),exit:document.querySelector(".exit"),colorBtn:document.querySelector(".edit div.color div"),speedInput:document.querySelector(".edit div.speed input"),textarea:document.querySelector("textarea"),saveBtn:document.querySelector(".two .save .twos"),titleInput:document.querySelector(".bar input"),video:document.querySelector(".video"),scriptDiv:document.querySelector(".bac-script div"),BacScriptDiv:document.querySelector(".bac-script"),scriptContainer:document.querySelector(".bac-script"),bacgroundColor:document.querySelector(".edit .bacgroundColor input"),bacColorOp:document.querySelector(".edit .bac-color-op input")},params=new URLSearchParams(window.location.search);let scriptArr=[];function saveScript(e,t,r,o,c,i,a){const n={id:Date.now(),text:e,title:t.value,color:r,font:o,speed:c,bacgroundColor:i,bacColorOp:a};scriptArr.push(n),save(scriptArr)}function save(e){localStorage.setItem("Storage",JSON.stringify(e))}function getScripts(){const e=localStorage.getItem("Storage");e&&showData(JSON.parse(e))}function showData(e){DOM.cards&&(DOM.cards.innerHTML="",e.forEach((e=>{const t=createCard(e);DOM.cards.appendChild(t)})))}function createCard(e){const t=document.createElement("div");return t.classList.add("card"),t.setAttribute("id",e.id),t.innerHTML=`\n        <div class="edit"><i class="fa-sharp fa-solid fa-file-pen"></i></div>\n        <div class="rec"><i class="fa-solid fa-video"></i></div>\n        <div class="dele">X</div>\n        <div class="title">${e.title}</div>\n        <p>${e.text}</p>\n    `,t.querySelector(".dele").addEventListener("click",(()=>{deleteScript(e.id),t.remove()})),t.querySelector(".rec").addEventListener("click",(()=>{window.location=`html/record.html?id=${e.id}`})),t.querySelector(".edit").addEventListener("click",(()=>{window.location=`html/wrieting.html?id=${e.id}`})),t}function deleteScript(e){scriptArr=scriptArr.filter((t=>t.id!==e)),save(scriptArr)}if(DOM.titleInput&&(DOM.titleInput.value="title"),localStorage.getItem("Storage")&&(scriptArr=JSON.parse(localStorage.getItem("Storage"))),getScripts(),DOM.create?.addEventListener("click",(e=>{e.preventDefault(),window.location="html/wrieting.html"})),DOM.fontBtn?.addEventListener("click",(()=>{const e=Number(DOM.font.value);DOM.textarea.style.fontSize=`${e}px`})),DOM.colorBtn?.addEventListener("click",(()=>{DOM.textarea.style.color=DOM.color.value})),DOM.clear?.addEventListener("click",(e=>{e.preventDefault(),DOM.textarea.value=""})),DOM.saveBtn?.addEventListener("click",(e=>{e.preventDefault(),""===DOM.textarea.value.trim()?alert("Please enter your script"):(saveScript(DOM.textarea.value,DOM.titleInput,DOM.color.value?DOM.color.value:"white",DOM.font.value?DOM.font.value:24,DOM.speedInput.value?DOM.speedInput.value:.5,DOM.bacgroundColor.value?DOM.bacgroundColor.value:"black",DOM.bacColorOp.value?DOM.bacColorOp.value:1),window.location="../index.html")})),DOM.exit?.addEventListener("click",(()=>{window.location="../index.html"})),params.get("id")){const e=Number(params.get("id")),t=scriptArr.find((t=>t.id===e));t&&(DOM.textarea&&(DOM.textarea.value=t.text,DOM.textarea.style.color=t.color,DOM.textarea.style.fontSize=`${t.font}px`,DOM.font&&(DOM.font.value=t.font),DOM.color&&(DOM.color.value=t.color),scriptArr=scriptArr.filter((t=>t.id!==e))),DOM.scriptDiv&&(DOM.scriptDiv.textContent=t.text,DOM.BacScriptDiv.style.backgroundColor=t.bacgroundColor,DOM.BacScriptDiv.style.opacity=t.bacColorOp,DOM.scriptDiv.style.color=t.color,DOM.scriptDiv.style.fontSize=`${t.font}px`),DOM.video&&initializeRecording(t))}function initializeRecording(e){const t=DOM.video,r=document.querySelector(".start"),o=document.querySelector(".stop"),c=document.querySelector(".download"),i=document.querySelector(".min"),a=document.querySelector(".sec");let n,l,d=[],s=0;navigator.mediaDevices.getUserMedia({video:true,audio: {
-echoCancellation: true,
-noiseSuppression: true,
-autoGainControl: false,
-sampleRate: 48000,channelCount: 1}}).then((e=>{t.srcObject=e,n=new MediaRecorder(e),n.ondataavailable=e=>d.push(e.data),n.onstop=()=>{const e=new Blob(d,{type:"video/mp4"}),t=URL.createObjectURL(e);c.querySelector("a").href=t,c.querySelector("a").download="recording.mp4",c.removeAttribute("disabled")}})).catch((e=>{console.error("Camera/microphone access error:",e),alert("Unable to access camera or microphone.")})),r?.addEventListener("click",(()=>{d=[],DOM.scriptContainer?.scrollTo({top:0}),"inactive"===n?.state&&(document.querySelectorAll("audio")[0]?.play(),d=[],s=0,n.start(),r.setAttribute("disabled","true"),o.removeAttribute("disabled"),e.speed&&DOM.scriptContainer&&smoothScroll(DOM.scriptContainer,Number(e.speed)),l=setInterval((()=>{s++,i.textContent=String(Math.floor(s/60)).padStart(2,"0"),a.textContent=String(s%60).padStart(2,"0")}),1e3))})),o?.addEventListener("click",(()=>{DOM.scriptContainer?.scrollTo({top:0}),document.querySelectorAll("audio")[1]?.play(),n?.stop(),clearInterval(l),r.removeAttribute("disabled"),o.setAttribute("disabled","true")}))}function smoothScroll(e,t){let r=0;const o=()=>{r<e.scrollHeight&&(r+=t,e.scrollTo({top:r,behavior:"smooth"}),requestAnimationFrame(o))};requestAnimationFrame(o)}
+// DOM selectors
+const DOM = {
+  color: document.querySelector(".edit .color input"),
+  font: document.querySelector(".edit .fonts input"),
+  create: document.querySelector(".create"),
+  cards: document.querySelector(".cards"),
+  clear: document.querySelector(".edit button"),
+  fontBtn: document.querySelector(".edit div.fonts div.sup1"),
+  exit: document.querySelector(".exit"),
+  colorBtn: document.querySelector(".edit div.color div"),
+  speedInput: document.querySelector(".edit div.speed input"),
+  textarea: document.querySelector("textarea"),
+  saveBtn: document.querySelector(".two .save .twos"),
+  titleInput: document.querySelector(".bar input"),
+  video: document.querySelector(".video"),
+  scriptDiv: document.querySelector(".bac-script div"),
+  BacScriptDiv: document.querySelector(".bac-script"),
+  scriptContainer: document.querySelector(".bac-script"),
+  bacgroundColor: document.querySelector(".edit .bacgroundColor input"),
+  bacColorOp: document.querySelector(".edit .bac-color-op input"),
+};
+
+const params = new URLSearchParams(window.location.search);
+let scriptArr = [];
+
+// Initialize
+if (DOM.titleInput) DOM.titleInput.value = "title";
+if (localStorage.getItem("Storage")) {
+  scriptArr = JSON.parse(localStorage.getItem("Storage"));
+}
+getScripts();
+
+// Event listeners
+DOM.create?.addEventListener("click", (e) => {
+  e.preventDefault();
+  window.location = "html/wrieting.html";
+});
+
+DOM.fontBtn?.addEventListener("click", () => {
+  const value = Number(DOM.font.value);
+  DOM.textarea.style.fontSize = `${value}px`;
+});
+
+DOM.colorBtn?.addEventListener("click", () => {
+  DOM.textarea.style.color = DOM.color.value;
+});
+
+DOM.clear?.addEventListener("click", (e) => {
+  e.preventDefault();
+  DOM.textarea.value = "";
+});
+
+DOM.saveBtn?.addEventListener("click", (e) => {
+  e.preventDefault();
+  if (DOM.textarea.value.trim() === "") {
+    alert("Please enter your script");
+  } else {
+    saveScript(
+      DOM.textarea.value,
+      DOM.titleInput,
+      DOM.color.value ? DOM.color.value : "white",
+      DOM.font.value ? DOM.font.value : 24,
+      DOM.speedInput.value ? DOM.speedInput.value : 0.5,
+      DOM.bacgroundColor.value ? DOM.bacgroundColor.value : "black",
+      DOM.bacColorOp.value ? DOM.bacColorOp.value : 1,
+    );
+    window.location = "../index.html";
+  }
+});
+
+DOM.exit?.addEventListener("click", () => {
+  window.location = "../index.html";
+});
+
+// Functions
+function saveScript(
+  text,
+  titleEl,
+  color,
+  font,
+  speed,
+  bacgroundColor,
+  bacColorOp,
+) {
+  const script = {
+    id: Date.now(),
+    text,
+    title: titleEl.value,
+    color,
+    font,
+    speed,
+    bacgroundColor,
+    bacColorOp,
+  };
+  scriptArr.push(script);
+  save(scriptArr);
+}
+
+function save(data) {
+  localStorage.setItem("Storage", JSON.stringify(data));
+}
+
+function getScripts() {
+  const data = localStorage.getItem("Storage");
+  if (data) showData(JSON.parse(data));
+}
+
+function showData(data) {
+  if (!DOM.cards) return;
+  DOM.cards.innerHTML = "";
+
+  data.forEach((item) => {
+    const card = createCard(item);
+    DOM.cards.appendChild(card);
+  });
+}
+
+function createCard(item) {
+  const card = document.createElement("div");
+  card.classList.add("card");
+  card.setAttribute("id", item.id);
+
+  card.innerHTML = `
+        <div class="edit"><i class="fa-sharp fa-solid fa-file-pen"></i></div>
+        <div class="rec"><i class="fa-solid fa-video"></i></div>
+        <div class="dele">X</div>
+        <div class="title">${item.title}</div>
+        <p>${item.text}</p>
+    `;
+
+  card.querySelector(".dele").addEventListener("click", () => {
+    deleteScript(item.id);
+    card.remove();
+  });
+
+  card.querySelector(".rec").addEventListener("click", () => {
+    window.location = `/html/record.html?id=${item.id}`;
+  });
+
+  card.querySelector(".edit").addEventListener("click", () => {
+    window.location = `/html/wrieting.html?id=${item.id}`;
+  });
+
+  return card;
+}
+
+function deleteScript(id) {
+  scriptArr = scriptArr.filter((item) => item.id !== id);
+  save(scriptArr);
+}
+
+// Handle URL parameters
+if (params.get("id")) {
+  const scriptId = Number(params.get("id"));
+  const script = scriptArr.find((item) => item.id === scriptId);
+
+  if (script) {
+    if (DOM.textarea) {
+      DOM.textarea.value = script.text;
+      DOM.textarea.style.color = script.color;
+      DOM.textarea.style.fontSize = `${script.font}px`;
+      if (DOM.font) DOM.font.value = script.font;
+      if (DOM.color) DOM.color.value = script.color;
+      scriptArr = scriptArr.filter((item) => item.id !== scriptId);
+    }
+
+    if (DOM.scriptDiv) {
+      DOM.scriptDiv.textContent = script.text;
+      DOM.BacScriptDiv.style.backgroundColor = script.bacgroundColor;
+      DOM.BacScriptDiv.style.opacity = script.bacColorOp;
+      DOM.scriptDiv.style.color = script.color;
+      DOM.scriptDiv.style.fontSize = `${script.font}px`;
+    }
+
+    if (DOM.video) initializeRecording(script);
+  }
+}
+
+function initializeRecording(script) {
+  const video = DOM.video;
+  const startBtn = document.querySelector(".start");
+  const stopBtn = document.querySelector(".stop");
+  const downloadBtn = document.querySelector(".download");
+  const minSpan = document.querySelector(".min");
+  const secSpan = document.querySelector(".sec");
+
+  let mediaRecorder,
+    chunks = [],
+    seconds = 0,
+    timerInterval,
+    state = false;
+
+  navigator.mediaDevices
+    .getUserMedia({
+      video: true,
+      audio: {
+        echoCancellation: true,
+        noiseSuppression: true,
+        autoGainControl: false,
+        sampleRate: 48000,
+        channelCount: 1,
+      },
+    })
+    .then((stream) => {
+      video.srcObject = stream;
+      mediaRecorder = new MediaRecorder(stream);
+      mediaRecorder.ondataavailable = (e) => chunks.push(e.data);
+      mediaRecorder.onstop = () => {
+        const blob = new Blob(chunks, { type: "video/mp4" });
+        const url = URL.createObjectURL(blob);
+        downloadBtn.querySelector("a").href = url;
+        downloadBtn.querySelector("a").download = "recording.mp4";
+        downloadBtn.removeAttribute("disabled");
+      };
+    })
+    .catch((error) => {
+      console.error("Camera/microphone access error:", error);
+      alert("Unable to access camera or microphone.");
+    });
+
+  startBtn?.addEventListener("click", () => {
+    state = true;
+    chunks = [];
+    DOM.scriptContainer?.scrollTo({ top: 0 });
+    if (mediaRecorder?.state === "inactive") {
+      document.querySelectorAll("audio")[0]?.play();
+      chunks = [];
+      seconds = 0;
+      mediaRecorder.start();
+      startBtn.setAttribute("disabled", "true");
+      stopBtn.removeAttribute("disabled");
+
+      if (script.speed && DOM.scriptContainer) {
+        smoothScroll(DOM.scriptContainer, Number(script.speed));
+      }
+
+      timerInterval = setInterval(() => {
+        seconds++;
+        minSpan.textContent = String(Math.floor(seconds / 60)).padStart(2, "0");
+        secSpan.textContent = String(seconds % 60).padStart(2, "0");
+      }, 1000);
+    }
+  });
+
+  stopBtn?.addEventListener("click", () => {
+    document.querySelectorAll("audio")[1]?.play();
+    mediaRecorder?.stop();
+    clearInterval(timerInterval);
+    startBtn.removeAttribute("disabled");
+    stopBtn.setAttribute("disabled", "true");
+    if (scrollAnimationId) {
+      cancelAnimationFrame(scrollAnimationId);
+      scrollAnimationId = null;
+    }
+  });
+}
+let scrollAnimationId;
+function smoothScroll(container, speed) {
+  let position = 0;
+  const scroll = () => {
+    if (position < container.scrollHeight) {
+      position += speed;
+      container.scrollTo({ top: position, behavior: "smooth" });
+      scrollAnimationId = requestAnimationFrame(scroll);
+    }
+  };
+  scrollAnimationId = requestAnimationFrame(scroll);
+}

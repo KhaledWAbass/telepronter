@@ -228,15 +228,17 @@ body {
     background-color: rgba(0, 0, 0, 0.5);
     color: white;
     width: 80%;
+    padding-top: 55px;
     transition: 0.5s;
     top: 10%;
     overflow: scroll;
     left: 10%;
     height: 80%;
-     scrollbar-width: none
-    & > {
-    opicty: 1;
-    }
+     scrollbar-width: none;
+     & > * {
+        opacity: 1;
+        font-weight: bold;
+     }
 }
 
 .disabled {
