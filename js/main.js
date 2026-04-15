@@ -40,7 +40,7 @@ getScripts();
 // Event listeners
 DOM.create?.addEventListener("click", (e) => {
   e.preventDefault();
-  window.location = "html/writing.html";
+  window.location = "html/wrieting.html";
 });
 DOM.bacBtn?.addEventListener("click", () => {
   if (DOM.textarea && DOM.backgroundColor) {
@@ -177,12 +177,12 @@ function createCard(item) {
 
   // Recording button handler
   card.querySelector(".rec")?.addEventListener("click", () => {
-    window.location = `/html/record.html?id=${item.id}`;
+    window.location = `html/record.html?id=${item.id}`;
   });
 
   // Edit button handler
   card.querySelector(".edit")?.addEventListener("click", () => {
-    window.location = `/html/writing.html?id=${item.id}`;
+    window.location = `html/wrieting.html?id=${item.id}`;
   });
 
   return card;
