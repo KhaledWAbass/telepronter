@@ -6,6 +6,10 @@ const DOM = {
   cards: document.querySelector(".cards"),
   clear: document.querySelector(".edit button"),
   fontBtn: document.querySelector(".edit div.fonts div.sup1"),
+  bacBtn: document.querySelector(".edit div.backgroundColor div.sup1"),
+  backgroundColorOpacityBtn: document.querySelector(
+    ".edit div.background-opacity div.sup1",
+  ),
   exit: document.querySelector(".exit"),
   colorBtn: document.querySelector(".edit div.color div"),
   speedInput: document.querySelector(".edit div.speed input"),
@@ -14,16 +18,19 @@ const DOM = {
   titleInput: document.querySelector(".bar input"),
   video: document.querySelector(".video"),
   scriptDiv: document.querySelector(".bac-script div"),
-  BacScriptDiv: document.querySelector(".bac-script"),
+  BackscriptDiv: document.querySelector(".bac-script"),
   scriptContainer: document.querySelector(".bac-script"),
-  bacgroundColor: document.querySelector(".edit .bacgroundColor input"),
-  bacColorOp: document.querySelector(".edit .bac-color-op input"),
+  backgroundColor: document.querySelector(".edit .backgroundColor input"),
+  backgroundColorOpacity: document.querySelector(
+    ".edit .background-opacity input",
+  ),
 };
 
 const params = new URLSearchParams(window.location.search);
 let scriptArr = [];
+let scrollAnimationId = null;
 
-// Initialize
+// Initialize application
 if (DOM.titleInput) DOM.titleInput.value = "title";
 if (localStorage.getItem("Storage")) {
   scriptArr = JSON.parse(localStorage.getItem("Storage"));
@@ -33,7 +40,12 @@ getScripts();
 // Event listeners
 DOM.create?.addEventListener("click", (e) => {
   e.preventDefault();
-  window.location = "html/wrieting.html";
+  window.location = "html/writing.html";
+});
+DOM.bacBtn?.addEventListener("click", () => {
+  if (DOM.textarea && DOM.backgroundColor) {
+    DOM.textarea.style.backgroundColor = DOM.backgroundColor.value;
+  }
 });
 
 DOM.fontBtn?.addEventListener("click", () => {
@@ -50,22 +62,28 @@ DOM.clear?.addEventListener("click", (e) => {
   DOM.textarea.value = "";
 });
 
+DOM.backgroundColorOpacityBtn?.addEventListener("click", () => {
+  if (DOM.textarea && DOM.backgroundColorOpacity) {
+    DOM.textarea.style.opacity = DOM.backgroundColorOpacity.value;
+  }
+});
+
 DOM.saveBtn?.addEventListener("click", (e) => {
   e.preventDefault();
-  if (DOM.textarea.value.trim() === "") {
+  if (!DOM.textarea?.value.trim()) {
     alert("Please enter your script");
-  } else {
-    saveScript(
-      DOM.textarea.value,
-      DOM.titleInput,
-      DOM.color.value ? DOM.color.value : "white",
-      DOM.font.value ? DOM.font.value : 24,
-      DOM.speedInput.value ? DOM.speedInput.value : 0.5,
-      DOM.bacgroundColor.value ? DOM.bacgroundColor.value : "black",
-      DOM.bacColorOp.value ? DOM.bacColorOp.value : 1,
-    );
-    window.location = "../index.html";
+    return;
   }
+  saveScript(
+    DOM.textarea.value,
+    DOM.titleInput,
+    DOM.color?.value || "white",
+    DOM.font?.value || 24,
+    DOM.speedInput?.value || 0.5,
+    DOM.backgroundColor?.value || "black",
+    DOM.backgroundColorOpacity?.value || 0.5,
+  );
+  window.location = "../index.html";
 });
 
 DOM.exit?.addEventListener("click", () => {
@@ -73,14 +91,17 @@ DOM.exit?.addEventListener("click", () => {
 });
 
 // Functions
+/**
+ * Save a new script with all properties
+ */
 function saveScript(
   text,
   titleEl,
   color,
   font,
   speed,
-  bacgroundColor,
-  bacColorOp,
+  backgroundColor,
+  backgroundColorOpacity,
 ) {
   const script = {
     id: Date.now(),
@@ -89,22 +110,39 @@ function saveScript(
     color,
     font,
     speed,
-    bacgroundColor,
-    bacColorOp,
+    backgroundColor,
+    backgroundColorOpacity,
   };
   scriptArr.push(script);
   save(scriptArr);
 }
 
+/**
+ * Save data to localStorage
+ */
 function save(data) {
-  localStorage.setItem("Storage", JSON.stringify(data));
+  try {
+    localStorage.setItem("Storage", JSON.stringify(data));
+  } catch (error) {
+    console.error("Error saving to localStorage:", error);
+  }
 }
 
+/**
+ * Retrieve scripts from localStorage
+ */
 function getScripts() {
-  const data = localStorage.getItem("Storage");
-  if (data) showData(JSON.parse(data));
+  try {
+    const data = localStorage.getItem("Storage");
+    if (data) showData(JSON.parse(data));
+  } catch (error) {
+    console.error("Error retrieving scripts:", error);
+  }
 }
 
+/**
+ * Display all scripts as cards
+ */
 function showData(data) {
   if (!DOM.cards) return;
   DOM.cards.innerHTML = "";
@@ -115,6 +153,9 @@ function showData(data) {
   });
 }
 
+/**
+ * Create a card element for a script
+ */
 function createCard(item) {
   const card = document.createElement("div");
   card.classList.add("card");
@@ -128,33 +169,40 @@ function createCard(item) {
         <p>${item.text}</p>
     `;
 
-  card.querySelector(".dele").addEventListener("click", () => {
+  // Delete button handler
+  card.querySelector(".dele")?.addEventListener("click", () => {
     deleteScript(item.id);
     card.remove();
   });
 
-  card.querySelector(".rec").addEventListener("click", () => {
-    window.location = `html/record.html?id=${item.id}`;
+  // Recording button handler
+  card.querySelector(".rec")?.addEventListener("click", () => {
+    window.location = `/html/record.html?id=${item.id}`;
   });
 
-  card.querySelector(".edit").addEventListener("click", () => {
-    window.location = `html/wrieting.html?id=${item.id}`;
+  // Edit button handler
+  card.querySelector(".edit")?.addEventListener("click", () => {
+    window.location = `/html/writing.html?id=${item.id}`;
   });
 
   return card;
 }
 
+/**
+ * Delete a script from storage
+ */
 function deleteScript(id) {
   scriptArr = scriptArr.filter((item) => item.id !== id);
   save(scriptArr);
 }
 
-// Handle URL parameters
+// Handle URL parameters to load script data
 if (params.get("id")) {
   const scriptId = Number(params.get("id"));
   const script = scriptArr.find((item) => item.id === scriptId);
 
   if (script) {
+    // Load in writing editor
     if (DOM.textarea) {
       DOM.textarea.value = script.text;
       DOM.textarea.style.color = script.color;
@@ -164,18 +212,25 @@ if (params.get("id")) {
       scriptArr = scriptArr.filter((item) => item.id !== scriptId);
     }
 
-    if (DOM.scriptDiv) {
+    // Load in recording view
+    if (DOM.scriptDiv && DOM.BackscriptDiv) {
       DOM.scriptDiv.textContent = script.text;
-      DOM.BacScriptDiv.style.backgroundColor = script.bacgroundColor;
-      DOM.BacScriptDiv.style.opacity = script.bacColorOp;
+      DOM.BackscriptDiv.style.backgroundColor = script.backgroundColor;
+      DOM.BackscriptDiv.style.opacity = script.backgroundColorOpacity;
       DOM.scriptDiv.style.color = script.color;
       DOM.scriptDiv.style.fontSize = `${script.font}px`;
     }
 
-    if (DOM.video) initializeRecording(script);
+    // Initialize recording if video element exists
+    if (DOM.video) {
+      initializeRecording(script);
+    }
   }
 }
 
+/**
+ * Initialize video recording with camera and audio
+ */
 function initializeRecording(script) {
   const video = DOM.video;
   const startBtn = document.querySelector(".start");
@@ -184,12 +239,12 @@ function initializeRecording(script) {
   const minSpan = document.querySelector(".min");
   const secSpan = document.querySelector(".sec");
 
-  let mediaRecorder,
-    chunks = [],
-    seconds = 0,
-    timerInterval,
-    state = false;
+  let mediaRecorder;
+  let chunks = [];
+  let seconds = 0;
+  let timerInterval;
 
+  // Request camera and microphone access
   navigator.mediaDevices
     .getUserMedia({
       video: true,
@@ -202,67 +257,90 @@ function initializeRecording(script) {
       },
     })
     .then((stream) => {
-      video.srcObject = stream;
+      if (video) {
+        video.srcObject = stream;
+      }
       mediaRecorder = new MediaRecorder(stream);
       mediaRecorder.ondataavailable = (e) => chunks.push(e.data);
       mediaRecorder.onstop = () => {
         const blob = new Blob(chunks, { type: "video/mp4" });
         const url = URL.createObjectURL(blob);
-        downloadBtn.querySelector("a").href = url;
-        downloadBtn.querySelector("a").download = "recording.mp4";
-        downloadBtn.removeAttribute("disabled");
+        const downloadLink = downloadBtn?.querySelector("a");
+        if (downloadLink) {
+          downloadLink.href = url;
+          downloadLink.download = "recording.mp4";
+          downloadBtn.removeAttribute("disabled");
+        }
       };
     })
     .catch((error) => {
       console.error("Camera/microphone access error:", error);
-      alert("Unable to access camera or microphone.");
+      alert("Unable to access camera or microphone. Please check permissions.");
     });
 
+  // Start recording button handler
   startBtn?.addEventListener("click", () => {
-    state = true;
     chunks = [];
     DOM.scriptContainer?.scrollTo({ top: 0 });
+
     if (mediaRecorder?.state === "inactive") {
-      document.querySelectorAll("audio")[0]?.play();
+      // Play start sound
+      const audioElements = document.querySelectorAll("audio");
+      audioElements[0]?.play();
+
       chunks = [];
       seconds = 0;
       mediaRecorder.start();
       startBtn.setAttribute("disabled", "true");
-      stopBtn.removeAttribute("disabled");
+      stopBtn?.removeAttribute("disabled");
 
+      // Start auto-scrolling script
       if (script.speed && DOM.scriptContainer) {
         smoothScroll(DOM.scriptContainer, Number(script.speed));
       }
 
+      // Start timer
       timerInterval = setInterval(() => {
         seconds++;
-        minSpan.textContent = String(Math.floor(seconds / 60)).padStart(2, "0");
-        secSpan.textContent = String(seconds % 60).padStart(2, "0");
+        if (minSpan)
+          minSpan.textContent = String(Math.floor(seconds / 60)).padStart(
+            2,
+            "0",
+          );
+        if (secSpan)
+          secSpan.textContent = String(seconds % 60).padStart(2, "0");
       }, 1000);
     }
   });
 
+  // Stop recording button handler
   stopBtn?.addEventListener("click", () => {
-    document.querySelectorAll("audio")[1]?.play();
+    // Play stop sound
+    const audioElements = document.querySelectorAll("audio");
+    audioElements[1]?.play();
+
     mediaRecorder?.stop();
     clearInterval(timerInterval);
-    startBtn.removeAttribute("disabled");
-    stopBtn.setAttribute("disabled", "true");
+    startBtn?.removeAttribute("disabled");
+    stopBtn?.setAttribute("disabled", "true");
+
     if (scrollAnimationId) {
       cancelAnimationFrame(scrollAnimationId);
       scrollAnimationId = null;
     }
   });
-}
-let scrollAnimationId;
-function smoothScroll(container, speed) {
-  let position = 0;
-  const scroll = () => {
-    if (position < container.scrollHeight) {
-      position += speed;
-      container.scrollTo({ top: position, behavior: "smooth" });
-      scrollAnimationId = requestAnimationFrame(scroll);
-    }
-  };
-  scrollAnimationId = requestAnimationFrame(scroll);
+  /**
+   * Smooth scroll animation for script
+   */
+  function smoothScroll(container, speed) {
+    let position = 0;
+    const scroll = () => {
+      if (position < container.scrollHeight) {
+        position += speed;
+        container.scrollTo({ top: position, behavior: "smooth" });
+        scrollAnimationId = requestAnimationFrame(scroll);
+      }
+    };
+    scrollAnimationId = requestAnimationFrame(scroll);
+  }
 }

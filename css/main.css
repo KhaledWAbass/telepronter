@@ -27,10 +27,6 @@ header {
   font-size: 30px;
 }
 
-body {
-  font-family: "Courier New", Courier, monospace;
-}
-
 .two {
   display: flex;
   justify-content: space-between;
@@ -55,7 +51,7 @@ body {
 .bar input {
   background-color: #ddd;
   border: none;
-  border-bottom: 1px solid;
+  border-bottom: 1px solid #999;
 }
 .bar .title {
   font-size: 25px;
@@ -68,6 +64,7 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: baseline;
+  flex-wrap: wrap;
   padding: 10px;
   gap: 10px;
   margin-top: 10px;
@@ -180,6 +177,7 @@ body {
 }
 
 body {
+  font-family: "Courier New", Courier, monospace;
   position: relative;
 }
 body .video {
@@ -223,13 +221,13 @@ body .video {
   scrollbar-width: none;
 }
 .bac-script > * {
-  opacity: 1;
+  opacity: initial;
   font-weight: bold;
 }
 
 .disabled {
   opacity: 0.5;
-  cursor: none;
+  cursor: not-allowed;
 }
 
 .exit {
@@ -243,12 +241,25 @@ body .video {
   cursor: pointer;
 }
 
-@media (max-width: 765px) {
+@media (max-width: 1024px) {
+  .controal {
+    left: 25%;
+    width: 50%;
+  }
+  header {
+    font-size: 24px;
+  }
+}
+@media (max-width: 768px) {
   .counter {
     z-index: 1;
+    left: 50%;
+    transform: translateX(-50%);
   }
   .controal {
-    left: 17%;
+    left: 10%;
+    right: 10%;
+    width: auto;
   }
   .bac-script {
     width: 100%;
@@ -263,16 +274,56 @@ body .video {
   }
   .bar {
     gap: 10px;
+    flex-direction: column;
   }
   .bar .title {
-    font-size: 20px;
+    font-size: 18px;
   }
   .bar input {
-    width: 200px;
+    width: 100%;
+    max-width: 200px;
+  }
+  .cards .card {
+    height: 250px;
   }
   .cards .card .edit,
   .cards .card .rec {
     left: 0;
+    width: 30px;
+    height: 30px;
+    font-size: 16px;
+  }
+  header {
+    font-size: 20px;
+    padding: 15px;
+  }
+}
+@media (max-width: 480px) {
+  .counter {
+    width: 80px;
+    font-size: 12px;
+  }
+  .controal {
+    width: 90%;
+    left: 5%;
+    font-size: 18px;
+  }
+  header {
+    font-size: 18px;
+    padding: 10px;
+  }
+  .cards .card {
+    height: 200px;
+  }
+  .title {
+    font-size: 18px;
+  }
+  .create {
+    width: 50px;
+    height: 50px;
+    bottom: 20px;
+    right: 20px;
+    font-size: 24px;
   }
 }
 .record {
