@@ -263,10 +263,13 @@ body .video {
   }
   .bac-script {
     width: 100%;
-    z-index: -1;
+    z-index: 0;
     height: 100%;
     top: 0;
     left: 0;
+  }
+  .bac-script > * {
+    opacity: initial;
   }
   .edit {
     flex-direction: column;
